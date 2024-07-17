@@ -16,35 +16,17 @@ function insertProductCards(products) {
     }
 }
 
-function createCard(product) {
-    // create new card DOM element thats inserted into homepage (JS to create html)
-    const card = document.createElement('section');
-
-    const name = document.createElement('h2');
-    const price = document.createElement('p');
-    const description = document.createElement('p');
-    const image = document.createElement('img')
-
-    card.classList.add('card');
-
-    // insert current element info into new card
-    name.innerHTML = product.name;
-    price.innerText = product.price;
-    description.innerHTML = product.description;
-    image.setAttribute('src', Obj.imageUrl)
-
-    // attach the card to the page last step
-    card.appendChild(name);
-    card.appendChild(price);
-    card.appendChild(description);
-    card.appendChild(image);
-
-    return card;
-}
-
 function createCardQuickly(product) {
+
+// encode our color array into a string to pass as a web parameter
+const colorArray = product.colors;
+const colorString = encodeURIComponent(JSON.stringify(colorArray));
+
+    // make the card a clickable link
     const card = document.createElement('a');
-    // TODO add href to card element
+    card.href = "./product.html?id=" + product._id
+
+    // add our API details to card
     card.innerHTML =
         `<article>
               <img src="${product.imageUrl}" alt="${product.altTxt}">
@@ -52,9 +34,34 @@ function createCardQuickly(product) {
               <p class="productDescription">${product.description}</p>
         </article>`
 
-        return card;
+    return card;
 }
 
 
+// function Create(product) {
+//     // create new card DOM element thats inserted into homepage (JS to create html)
+//     const card = document.createElement('section');
+
+//     const name = document.createElement('h2');
+//     const price = document.createElement('p');
+//     const description = document.createElement('p');
+//     const image = document.createElement('img')
+
+//     card.classList.add('card');
+
+//     // insert current element info into new card
+//     name.innerHTML = product.name;
+//     price.innerText = product.price;
+//     description.innerHTML = product.description;
+//     image.setAttribute('src', Obj.imageUrl)
+
+//     // attach the card to the page last step
+//     card.appendChild(name);
+//     card.appendChild(price);
+//     card.appendChild(description);
+//     card.appendChild(image);
+
+//     return card;
+// }
 
 
