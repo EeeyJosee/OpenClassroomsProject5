@@ -39,25 +39,22 @@ addCartButton.addEventListener("click", addToShoppingCart);
 
 // function to add products
 function addToShoppingCart() {
-
     // see if an order already exists, otherwise create an empty array 
     var cart = JSON.parse(localStorage.getItem('order'));
     if (cart == null) { cart = []; }
 
     const productId = id;
     const productColor = colors.value;
-
+    
     // check for invalid inputs and already existing id & color cart items
     const invalidInput = (parseInt(quantity.value) <= 0 || productColor === '');
     const productExists = cart.find(({ id, color }) => id === productId && color === productColor);
 
     if (invalidInput) { alert('Your order was invalid'); }
-
     else {
         if (productExists) {
             productExists.quantity += parseInt(quantity.value);
         }
-
         // add new orders to the cart
         else {
             var orderDetails = {
@@ -67,7 +64,6 @@ function addToShoppingCart() {
             };
             cart.push(orderDetails);
         }
-
         localStorage.setItem('order', JSON.stringify(cart));
         alert('Order has been placed in the shopping cart');
     }
