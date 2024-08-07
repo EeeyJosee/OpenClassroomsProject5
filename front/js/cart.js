@@ -48,70 +48,63 @@ if (!emptyStorage) {
             </div>`;
         shoppingCart.appendChild(cartItem);
 
+        // updating product quantities
         cartItem.querySelector('.itemQuantity').addEventListener('change', function changeQuantity($event) {
-            const id = $event.target.closest('article').dataset.id;
-            const color = $event.target.closest('article').dataset.color;
-            console.log(`id: ${id}, color: ${color}, value: ${this.value}`);
+            const productId = $event.target.closest('article').dataset.id;
+            const productColor = $event.target.closest('article').dataset.color;
+            const productExists = order.find(({ id, color }) => id === productId && color === productColor);
 
-            const productExists = order.find(({ id, color }) => id === id && color === color);
-            console.log(productExists);
-
-            // change both elements
-            // for (const w of order) {
-            //     console.log(w);
-            //     const productExists = order.find(({ id, color }) => id === w.id && color === w.color);
-
-            //     if (productExists) {
-            //         oldQuantity = productExists.quantity;
-            //         productExists.quantity = this.value;
-            //         localStorage.setItem('order', JSON.stringify(order));
-            //         productTotals(product, productExists.quantity, oldQuantity);
-            //     }
-            // }
-
-            // change one element
-            // const productExists = order.find(({ id, color }) => id === id && color === color);
-
+            // find the product specific to the triggered event and update its quantity
             if (productExists) {
                 oldQuantity = productExists.quantity;
                 productExists.quantity = this.value;
                 localStorage.setItem('order', JSON.stringify(order));
-                // productTotals(product, productExists.quantity, oldQuantity);
+                productTotals(product, productExists.quantity, oldQuantity);
             }
-
         });
 
+        // deleting products
         cartItem.querySelector('.deleteItem').addEventListener('click', function deleteItem($event) {
-            const id = $event.target.closest('article').dataset.id;
-            const color = $event.target.closest('article').dataset.color;
-            console.log(`delete item ${id} and ${color}`);
-            console.clear()
-            // TODO finish coding cart item removal from local storage
-            // localStorage.removeItem('order');
+            const productId = $event.target.closest('article').dataset.id;
+            const productColor = $event.target.closest('article').dataset.color;
+            const productExists = order.find(({ id, color }) => id === productId && color === productColor);
+
+            // find the product specific to the triggered event
+            if (productExists) {
+                var orderItems = JSON.parse(localStorage.getItem('order'));
+
+                for (let i = 0; i < orderItems.length; i++) {
+
+                    if (orderItems[i].id == productExists.id && orderItems[i].color == productExists.color) {
+                        orderItems.splice(i, 1);
+                        console.log(orderItems);
+                        localStorage.setItem('order', JSON.stringify(orderItems));
+                        location.reload();
+                    }
+                }
+            }
         });
 
-
-
-        // add the totals of ALL products
+        // add the totals of product quantity and price
         totalArticles += parseInt(quantity);
         document.getElementById('totalQuantity').innerText = totalArticles;
 
         cartTotal += product.price * parseInt(quantity)
         document.getElementById('totalPrice').innerText = cartTotal;
-
-        // total function for product modification
-        function productTotals(product, newQuantity, oldQuantity) {
-            // add up the total product
-            if (newQuantity < oldQuantity) { totalArticles += parseInt(newQuantity - oldQuantity); }
-            if (newQuantity > oldQuantity) { totalArticles += parseInt(newQuantity - oldQuantity); }
-            document.getElementById('totalQuantity').innerText = totalArticles;
-
-            // add up the total price
-            if (newQuantity < oldQuantity) { cartTotal += product.price * parseInt(newQuantity - oldQuantity); }
-            if (newQuantity > oldQuantity) { cartTotal += product.price * parseInt(newQuantity - oldQuantity); }
-            document.getElementById('totalPrice').innerText = cartTotal;
-        }
     }
+}
+
+// total function for quantity modification
+function productTotals(product, newQuantity, oldQuantity) {
+    // add up the total product
+    if (newQuantity < oldQuantity) { totalArticles += parseInt(newQuantity - oldQuantity); }
+    if (newQuantity > oldQuantity) { totalArticles += parseInt(newQuantity - oldQuantity); }
+    document.getElementById('totalQuantity').innerText = totalArticles;
+
+    // add up the total price
+    if (newQuantity < oldQuantity) { cartTotal += product.price * parseInt(newQuantity - oldQuantity); }
+    if (newQuantity > oldQuantity) { cartTotal += product.price * parseInt(newQuantity - oldQuantity); }
+    document.getElementById('totalPrice').innerText = cartTotal;
 }
 
 const firstNameInput = document.getElementById('firstName');

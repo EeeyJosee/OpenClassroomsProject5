@@ -66,5 +66,6 @@ function addToShoppingCart() {
         }
         localStorage.setItem('order', JSON.stringify(cart));
         alert('Order has been placed in the shopping cart');
+        location.reload();
     }
 }
