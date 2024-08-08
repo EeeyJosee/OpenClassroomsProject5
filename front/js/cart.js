@@ -54,12 +54,21 @@ if (!emptyStorage) {
             const productColor = $event.target.closest('article').dataset.color;
             const productExists = order.find(({ id, color }) => id === productId && color === productColor);
 
-            // find the product specific to the triggered event and update its quantity
-            if (productExists) {
-                oldQuantity = productExists.quantity;
-                productExists.quantity = this.value;
-                localStorage.setItem('order', JSON.stringify(order));
-                productTotals(product, productExists.quantity, oldQuantity);
+            // before changing quantity, make sure our inputs range from 1 to 100
+            const invalidInput = (this.value <= 0 || this.value > 100);
+            if (invalidInput) { 
+                alert('Quantity is invalid'); 
+                this.value = quantity;
+            }
+
+            else {
+                // find the product specific to the triggered event and update its quantity
+                if (productExists) {
+                    oldQuantity = productExists.quantity;
+                    productExists.quantity = this.value;
+                    localStorage.setItem('order', JSON.stringify(order));
+                    productTotals(product, productExists.quantity, oldQuantity);
+                }
             }
         });
 
