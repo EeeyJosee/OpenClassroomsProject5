@@ -1,4 +1,5 @@
 const emptyStorage = (localStorage.length == 0);
+const api = 'http://localhost:3000/api/products'
 
 if (!emptyStorage) {
 
@@ -14,12 +15,19 @@ if (!emptyStorage) {
         var totalArticles = 0;
         var cartTotal = 0;
 
-        fetch(`http://localhost:3000/api/products/${productId}`)
+        fetch(api + `/${productId}`)
             .then((response) => response.json())
-            .then((product) => cartProductDetails(product, productColor, productQuantity));
+            .then((product) => insertCartItem(product, productColor, productQuantity));
     }
 
-    function cartProductDetails(product, color, quantity) {
+    /**
+     * Inserts cart items into page for given info.
+     * 
+     * @param {object} product - cart item product details
+     * @param {string} color - cart item product color
+     * @param {number} quantity - cart item product quantity
+     */
+    function insertCartItem(product, color, quantity) {
         // create the shopping cart a product at a time
         const cartItem = document.createElement('article');
         cartItem.classList.add('cart__item');
@@ -50,14 +58,15 @@ if (!emptyStorage) {
 
         // updating product quantities
         cartItem.querySelector('.itemQuantity').addEventListener('change', function changeQuantity($event) {
-            const productId = $event.target.closest('article').dataset.id;
-            const productColor = $event.target.closest('article').dataset.color;
+            const cartItemElement = $event.target.closest('article');
+            const productId = cartItemElement.dataset.id;
+            const productColor = cartItemElement.dataset.color;
             const productExists = order.find(({ id, color }) => id === productId && color === productColor);
 
             // before changing quantity, make sure our inputs range from 1 to 100
             const invalidInput = (this.value <= 0 || this.value > 100);
-            if (invalidInput) { 
-                alert('Quantity is invalid'); 
+            if (invalidInput) {
+                alert('Quantity is invalid');
                 this.value = quantity;
             }
 
@@ -74,8 +83,9 @@ if (!emptyStorage) {
 
         // deleting products
         cartItem.querySelector('.deleteItem').addEventListener('click', function deleteItem($event) {
-            const productId = $event.target.closest('article').dataset.id;
-            const productColor = $event.target.closest('article').dataset.color;
+            const cartItemElement = $event.target.closest('article');
+            const productId = cartItemElement.dataset.id;
+            const productColor = cartItemElement.dataset.color;
             const productExists = order.find(({ id, color }) => id === productId && color === productColor);
 
             // find the product specific to the triggered event
@@ -83,12 +93,12 @@ if (!emptyStorage) {
                 var orderItems = JSON.parse(localStorage.getItem('order'));
 
                 for (let i = 0; i < orderItems.length; i++) {
-
                     if (orderItems[i].id == productExists.id && orderItems[i].color == productExists.color) {
+                        // make changes to totals before removing the item
+                        productTotals(product, 0, orderItems[i].quantity);
                         orderItems.splice(i, 1);
-                        console.log(orderItems);
                         localStorage.setItem('order', JSON.stringify(orderItems));
-                        location.reload();
+                        cartItemElement.remove();
                     }
                 }
             }
@@ -103,7 +113,13 @@ if (!emptyStorage) {
     }
 }
 
-// total function for quantity modification
+/**
+ * Calculates total quantities and total price.
+ * 
+ * @param {object} product - cart item product details
+ * @param {number} newQuantity - cart item product new quantity
+ * @param {number} oldQuantity - cart item product old quantity
+ */
 function productTotals(product, newQuantity, oldQuantity) {
     // add up the total product
     if (newQuantity < oldQuantity) { totalArticles += parseInt(newQuantity - oldQuantity); }
@@ -116,20 +132,85 @@ function productTotals(product, newQuantity, oldQuantity) {
     document.getElementById('totalPrice').innerText = cartTotal;
 }
 
+// field input elements for contact details
 const firstNameInput = document.getElementById('firstName');
 const lastNameInput = document.getElementById('lastName');
 const addressInput = document.getElementById('address');
 const cityInput = document.getElementById('city');
 const emailInput = document.getElementById('email');
-const submitButton = document.getElementById('order');
+const orderButton = document.getElementById('order');
 
+//TODO add event listeners [change event] to input fields for error messages
 
-emailInput.addEventListener('input', ($event) => {
+firstNameInput.value = 'Jose';
+lastNameInput.value = 'Villalobos';
+addressInput.value = '3030 St';
+cityInput.value = 'City';
+emailInput.value = 'jose@gmail.com';
 
-})
-
-
-
-submitButton.addEventListener('click', ($event) => {
+orderButton.addEventListener('click', ($event) => {
     $event.preventDefault();
+
+    //TODO validate contact info
+
+    // create an array of product IDs
+    const productIdarray = [];
+    for (let i = 0; i < order.length; i++) {
+        productIdarray[i] = order[i].id;
+    }
+
+    const post = {
+        "contact": {
+            "firstName": firstNameInput.value,
+            "lastName": lastNameInput.value,
+            "address": addressInput.value,
+            "city": cityInput.value,
+            "email": emailInput.value
+        },
+        "products": productIdarray
+    };
+    submitFormData(post);
+    // localStorage.clear();
 })
+
+/**
+ * Receives API response as an order ID.
+ * 
+ * @param {object} post - contact details from user input
+ */
+async function submitFormData(post) {
+    try {
+        const requestPromise = makeRequest(post)
+        const response = await requestPromise;
+        orderId = response.orderId;
+        console.log(orderId);
+        window.location.href = "./confirmation.html?id=" + orderId;
+    }
+    catch (errorResponse) {
+        console.log(errorResponse.error);
+    }
+}
+
+/**
+ * Sends a POST request to /order API.
+ * 
+ * @param {object} data - contact details from user input
+ * @returns 
+ */
+function makeRequest(data) {
+    return new Promise((resolve, reject) => {
+        let request = new XMLHttpRequest();
+        request.open('POST', api + '/order');
+        request.onreadystatechange = () => {
+            if (request.readyState === 4) {
+                if (request.status === 201) {
+                    resolve(JSON.parse(request.response));
+                } else {
+                    reject(JSON.parse(request.response));
+                }
+            }
+        };
+        request.setRequestHeader('Content-Type', 'application/json');
+        request.send(JSON.stringify(data));
+    });
+}

@@ -10,7 +10,11 @@ fetch(`http://localhost:3000/api/products/${id}`)
     .then((response) => response.json())
     .then((product) => insertProductDetails(product));
 
-// add variable infromation onto the page
+/**
+ * Add product details to its own page.
+ * 
+ * @param {object} product - product details and identifiers 
+ */
 function insertProductDetails(product) {
     document.getElementById('title').innerHTML = product.name;
     document.getElementById('price').innerHTML = product.price;
@@ -37,7 +41,9 @@ function insertProductDetails(product) {
 const addCartButton = document.getElementById("addToCart");
 addCartButton.addEventListener("click", addToShoppingCart);
 
-// function to add products
+/**
+ * Add products to shopping cart.
+ */
 function addToShoppingCart() {
     // see if an order already exists, otherwise create an empty array 
     var cart = JSON.parse(localStorage.getItem('order'));
@@ -50,7 +56,7 @@ function addToShoppingCart() {
     const invalidInput = (parseInt(quantity.value) <= 0 || productColor === '');
     const productExists = cart.find(({ id, color }) => id === productId && color === productColor);
 
-    if (invalidInput) { alert('Your order was invalid'); }
+    if (invalidInput) { alert('Your request was invalid'); }
     else {
         if (productExists) {
             productExists.quantity += parseInt(quantity.value);
@@ -65,7 +71,6 @@ function addToShoppingCart() {
             cart.push(orderDetails);
         }
         localStorage.setItem('order', JSON.stringify(cart));
-        alert('Order has been placed in the shopping cart');
-        location.reload();
+        alert('Product(s) have been placed in the shopping cart');
     }
 }

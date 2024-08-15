@@ -4,7 +4,11 @@ fetch("http://localhost:3000/api/products")
     .then((response) => response.json())
     .then((products) => insertProductCards(products));
 
-// call function which takes in products as an argument and lets us insert product cards on page
+/**
+ *  Inserts product cards on page.
+ * 
+ * @param {array} products - all available products
+ */
 function insertProductCards(products) {
     const container = document.getElementById('items');
 
@@ -15,15 +19,21 @@ function insertProductCards(products) {
     }
 }
 
+/**
+ * Creates individual product cards.
+ * 
+ * @param {object} product - product details and identifiers
+ * @returns - completed card
+ */
 function createCardQuickly(product) {
 
 // encode our color array into a string to pass as a web parameter
 const colorArray = product.colors;
-const colorString = encodeURIComponent(JSON.stringify(colorArray));
+encodeURIComponent(JSON.stringify(colorArray));
 
     // make the card a clickable link
     const card = document.createElement('a');
-    card.href = "./product.html?id=" + product._id
+    card.href = "./product.html?id=" + product._id;
 
     // add our API details to card
     card.innerHTML =
