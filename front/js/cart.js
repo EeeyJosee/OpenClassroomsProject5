@@ -158,14 +158,14 @@ let emailValid = false;
 firstNameInput.addEventListener('change', () => {
     const errorRegEx = new RegExp(/[^a-zA-Z-]/);
     const errorExists = errorRegEx.test(firstNameInput.value);
-    
+
     // add error on failed condition
     if (errorExists || firstNameInput.value == '') {
         firstNameError.innerText = 'Invalid Entry';
         firstNameValid = false;
     }
-    else { 
-        firstNameError.innerText = ''; 
+    else {
+        firstNameError.innerText = '';
         firstNameValid = true;
     }
 })
@@ -178,7 +178,7 @@ lastNameInput.addEventListener('change', () => {
         lastNameError.innerText = 'Invalid Entry';
         lastNameValid = false;
     }
-    else { 
+    else {
         lastNameError.innerText = '';
         lastNameValid = true;
     }
@@ -192,11 +192,11 @@ addressInput.addEventListener('change', () => {
         addressError.innerText = 'Invalid Entry';
         addressValid = false;
     }
-    else { 
+    else {
         addressError.innerText = '';
         addressValid = true;
     }
-    
+
 })
 
 cityInput.addEventListener('change', () => {
@@ -221,7 +221,7 @@ emailInput.addEventListener('change', () => {
         emailError.innerText = 'Invalid Entry';
         emailValid = false;
     }
-    else { 
+    else {
         emailError.innerText = '';
         emailValid = true;
     }
@@ -230,10 +230,10 @@ emailInput.addEventListener('change', () => {
 // final validation that fields are valid and non-empty
 orderButton.addEventListener('click', ($event) => {
     $event.preventDefault();
-    if ( (firstNameInput.value != '' && firstNameValid == true) &&
-        (lastNameInput.value != '' && lastNameValid == true) && 
-        (addressInput.value != '' && addressValid == true) && 
-        (cityInput.value != '' && cityValid == true) && 
+    if ((firstNameInput.value != '' && firstNameValid == true) &&
+        (lastNameInput.value != '' && lastNameValid == true) &&
+        (addressInput.value != '' && addressValid == true) &&
+        (cityInput.value != '' && cityValid == true) &&
         (emailInput.value != '' && emailValid == true)
     ) {
 
@@ -257,7 +257,7 @@ orderButton.addEventListener('click', ($event) => {
         // localStorage.clear();
     }
     else {
-        alert('There are empty or invalid entries on the page!')
+        alert('There are empty or invalid entries on the page')
     }
 })
 

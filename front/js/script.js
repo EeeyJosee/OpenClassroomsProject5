@@ -27,9 +27,9 @@ function insertProductCards(products) {
  */
 function createCardQuickly(product) {
 
-// encode our color array into a string to pass as a web parameter
-const colorArray = product.colors;
-encodeURIComponent(JSON.stringify(colorArray));
+    // encode our color array into a string to pass as a web parameter
+    const colorArray = product.colors;
+    encodeURIComponent(JSON.stringify(colorArray));
 
     // make the card a clickable link
     const card = document.createElement('a');

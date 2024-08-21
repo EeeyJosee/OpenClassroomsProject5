@@ -51,7 +51,7 @@ function addToShoppingCart() {
 
     const productId = id;
     const productColor = colors.value;
-    
+
     // check for invalid inputs and already existing id & color cart items
     const invalidInput = (parseInt(quantity.value) <= 0 || productColor === '');
     const productExists = cart.find(({ id, color }) => id === productId && color === productColor);
