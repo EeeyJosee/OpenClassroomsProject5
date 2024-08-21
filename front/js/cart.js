@@ -132,6 +132,7 @@ function productTotals(product, newQuantity, oldQuantity) {
     document.getElementById('totalPrice').innerText = cartTotal;
 }
 
+
 // field input elements for contact details
 const firstNameInput = document.getElementById('firstName');
 const lastNameInput = document.getElementById('lastName');
@@ -140,37 +141,124 @@ const cityInput = document.getElementById('city');
 const emailInput = document.getElementById('email');
 const orderButton = document.getElementById('order');
 
-//TODO add event listeners [change event] to input fields for error messages
+// field input elements for error messages
+const firstNameError = document.getElementById('firstNameErrorMsg');
+const lastNameError = document.getElementById('lastNameErrorMsg');
+const addressError = document.getElementById('addressErrorMsg');
+const cityError = document.getElementById('cityErrorMsg');
+const emailError = document.getElementById('emailErrorMsg');
 
-firstNameInput.value = 'Jose';
-lastNameInput.value = 'Villalobos';
-addressInput.value = '3030 St';
-cityInput.value = 'City';
-emailInput.value = 'jose@gmail.com';
+let firstNameValid = false;
+let lastNameValid = false;
+let addressValid = false;
+let cityValid = false;
+let emailValid = false;
 
+// Validate field information per input
+firstNameInput.addEventListener('change', () => {
+    const errorRegEx = new RegExp(/[^a-zA-Z-]/);
+    const errorExists = errorRegEx.test(firstNameInput.value);
+    
+    // add error on failed condition
+    if (errorExists || firstNameInput.value == '') {
+        firstNameError.innerText = 'Invalid Entry';
+        firstNameValid = false;
+    }
+    else { 
+        firstNameError.innerText = ''; 
+        firstNameValid = true;
+    }
+})
+
+lastNameInput.addEventListener('change', () => {
+    const errorRegEx = new RegExp(/[^a-zA-Z-]/);
+    const errorExists = errorRegEx.test(lastNameInput.value);
+    // add error on failed condition
+    if (errorExists || lastNameInput.value == '') {
+        lastNameError.innerText = 'Invalid Entry';
+        lastNameValid = false;
+    }
+    else { 
+        lastNameError.innerText = '';
+        lastNameValid = true;
+    }
+})
+
+addressInput.addEventListener('change', () => {
+    const errorRegEx = new RegExp(/[^a-zA-Z0-9.\s]/);
+    const errorExists = errorRegEx.test(addressInput.value);
+    // add error on failed condition
+    if (errorExists || addressInput.value == '') {
+        addressError.innerText = 'Invalid Entry';
+        addressValid = false;
+    }
+    else { 
+        addressError.innerText = '';
+        addressValid = true;
+    }
+    
+})
+
+cityInput.addEventListener('change', () => {
+    const errorRegEx = new RegExp(/[^a-zA-Z\s]/);
+    const errorExists = errorRegEx.test(cityInput.value);
+    // add error on failed condition
+    if (errorExists || cityInput.value == '') {
+        cityError.innerText = 'Invalid Entry';
+        cityValid = false;
+    }
+    else {
+        cityError.innerText = '';
+        cityValid = true;
+    }
+})
+
+emailInput.addEventListener('change', () => {
+    const validRegEx = new RegExp(/([a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,3})/);
+    const validCondition = validRegEx.test(emailInput.value);
+    // add error on failed condition
+    if (!validCondition || emailInput.value == '') {
+        emailError.innerText = 'Invalid Entry';
+        emailValid = false;
+    }
+    else { 
+        emailError.innerText = '';
+        emailValid = true;
+    }
+})
+
+// final validation that fields are valid and non-empty
 orderButton.addEventListener('click', ($event) => {
     $event.preventDefault();
+    if ( (firstNameInput.value != '' && firstNameValid == true) &&
+        (lastNameInput.value != '' && lastNameValid == true) && 
+        (addressInput.value != '' && addressValid == true) && 
+        (cityInput.value != '' && cityValid == true) && 
+        (emailInput.value != '' && emailValid == true)
+    ) {
 
-    //TODO validate contact info
+        // create an array of product IDs
+        const productIdarray = [];
+        for (let i = 0; i < order.length; i++) {
+            productIdarray[i] = order[i].id;
+        }
 
-    // create an array of product IDs
-    const productIdarray = [];
-    for (let i = 0; i < order.length; i++) {
-        productIdarray[i] = order[i].id;
+        const post = {
+            "contact": {
+                "firstName": firstNameInput.value,
+                "lastName": lastNameInput.value,
+                "address": addressInput.value,
+                "city": cityInput.value,
+                "email": emailInput.value
+            },
+            "products": productIdarray
+        };
+        submitFormData(post);
+        // localStorage.clear();
     }
-
-    const post = {
-        "contact": {
-            "firstName": firstNameInput.value,
-            "lastName": lastNameInput.value,
-            "address": addressInput.value,
-            "city": cityInput.value,
-            "email": emailInput.value
-        },
-        "products": productIdarray
-    };
-    submitFormData(post);
-    // localStorage.clear();
+    else {
+        alert('There are empty or invalid entries on the page!')
+    }
 })
 
 /**
