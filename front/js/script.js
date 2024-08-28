@@ -7,7 +7,7 @@ fetch("http://localhost:3000/api/products")
 /**
  *  Inserts product cards on page.
  * 
- * @param {array} products - all available products
+ * @param {object[]} products - all available products
  */
 function insertProductCards(products) {
     const container = document.getElementById('items');
@@ -33,7 +33,7 @@ function createCardQuickly(product) {
 
     // make the card a clickable link
     const card = document.createElement('a');
-    card.href = "./product.html?id=" + product._id;
+    card.href = `./product.html?id=${product._id}`;
 
     // add our API details to card
     card.innerHTML =
@@ -45,4 +45,3 @@ function createCardQuickly(product) {
 
     return card;
 }
-

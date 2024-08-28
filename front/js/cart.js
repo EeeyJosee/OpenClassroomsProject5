@@ -1,7 +1,14 @@
-const emptyStorage = (localStorage.length == 0);
-const api = 'http://localhost:3000/api/products'
+/**
+ * Determines whether an 'order' key exists in local storage.
+ * 
+ * @returns 
+ */
+function hasCart() {
+    const cart = localStorage.getItem('order');
+    return cart && cart.length !== 0;
+}
 
-if (!emptyStorage) {
+if (hasCart()) {
 
     // retrieve object from local storage
     order = JSON.parse(localStorage.getItem('order', JSON.stringify(order)));
@@ -15,7 +22,7 @@ if (!emptyStorage) {
         var totalArticles = 0;
         var cartTotal = 0;
 
-        fetch(api + `/${productId}`)
+        fetch(`http://localhost:3000/api/products/${productId}`)
             .then((response) => response.json())
             .then((product) => insertCartItem(product, productColor, productQuantity));
     }
@@ -58,10 +65,11 @@ if (!emptyStorage) {
 
         // updating product quantities
         cartItem.querySelector('.itemQuantity').addEventListener('change', function changeQuantity($event) {
+            const orderItems = JSON.parse(localStorage.getItem('order'));
             const cartItemElement = $event.target.closest('article');
             const productId = cartItemElement.dataset.id;
             const productColor = cartItemElement.dataset.color;
-            const productExists = order.find(({ id, color }) => id === productId && color === productColor);
+            const productExists = orderItems.find(({ id, color }) => id === productId && color === productColor);
 
             // before changing quantity, make sure our inputs range from 1 to 100
             const invalidInput = (this.value <= 0 || this.value > 100);
@@ -75,7 +83,7 @@ if (!emptyStorage) {
                 if (productExists) {
                     oldQuantity = productExists.quantity;
                     productExists.quantity = this.value;
-                    localStorage.setItem('order', JSON.stringify(order));
+                    localStorage.setItem('order', JSON.stringify(orderItems));
                     productTotals(product, productExists.quantity, oldQuantity);
                 }
             }
@@ -90,7 +98,7 @@ if (!emptyStorage) {
 
             // find the product specific to the triggered event
             if (productExists) {
-                var orderItems = JSON.parse(localStorage.getItem('order'));
+                const orderItems = JSON.parse(localStorage.getItem('order'));
 
                 for (let i = 0; i < orderItems.length; i++) {
                     if (orderItems[i].id == productExists.id && orderItems[i].color == productExists.color) {
@@ -132,7 +140,6 @@ function productTotals(product, newQuantity, oldQuantity) {
     document.getElementById('totalPrice').innerText = cartTotal;
 }
 
-
 // field input elements for contact details
 const firstNameInput = document.getElementById('firstName');
 const lastNameInput = document.getElementById('lastName');
@@ -148,101 +155,71 @@ const addressError = document.getElementById('addressErrorMsg');
 const cityError = document.getElementById('cityErrorMsg');
 const emailError = document.getElementById('emailErrorMsg');
 
-let firstNameValid = false;
-let lastNameValid = false;
-let addressValid = false;
-let cityValid = false;
-let emailValid = false;
-
-// Validate field information per input
+// field validations per each input
 firstNameInput.addEventListener('change', () => {
-    const errorRegEx = new RegExp(/[^a-zA-Z-]/);
-    const errorExists = errorRegEx.test(firstNameInput.value);
-
-    // add error on failed condition
-    if (errorExists || firstNameInput.value == '') {
-        firstNameError.innerText = 'Invalid Entry';
-        firstNameValid = false;
-    }
-    else {
-        firstNameError.innerText = '';
-        firstNameValid = true;
-    }
+    validateInput(firstNameInput, firstNameError, RegExp(/[^a-zA-Z-]/));
 })
 
 lastNameInput.addEventListener('change', () => {
-    const errorRegEx = new RegExp(/[^a-zA-Z-]/);
-    const errorExists = errorRegEx.test(lastNameInput.value);
-    // add error on failed condition
-    if (errorExists || lastNameInput.value == '') {
-        lastNameError.innerText = 'Invalid Entry';
-        lastNameValid = false;
-    }
-    else {
-        lastNameError.innerText = '';
-        lastNameValid = true;
-    }
+    validateInput(lastNameInput, lastNameError, RegExp(/[^a-zA-Z-]/));
 })
 
 addressInput.addEventListener('change', () => {
-    const errorRegEx = new RegExp(/[^a-zA-Z0-9.\s]/);
-    const errorExists = errorRegEx.test(addressInput.value);
-    // add error on failed condition
-    if (errorExists || addressInput.value == '') {
-        addressError.innerText = 'Invalid Entry';
-        addressValid = false;
-    }
-    else {
-        addressError.innerText = '';
-        addressValid = true;
-    }
-
+    validateInput(addressInput, addressError, RegExp(/[^a-zA-Z0-9.\s]/));
 })
 
 cityInput.addEventListener('change', () => {
-    const errorRegEx = new RegExp(/[^a-zA-Z\s]/);
-    const errorExists = errorRegEx.test(cityInput.value);
-    // add error on failed condition
-    if (errorExists || cityInput.value == '') {
-        cityError.innerText = 'Invalid Entry';
-        cityValid = false;
-    }
-    else {
-        cityError.innerText = '';
-        cityValid = true;
-    }
+    validateInput(cityInput, cityError, RegExp(/[^a-zA-Z\s]/));
 })
 
+// field validation specific to email
 emailInput.addEventListener('change', () => {
     const validRegEx = new RegExp(/([a-zA-Z0-9]+@[a-zA-Z]+\.[a-zA-Z]{2,3})/);
     const validCondition = validRegEx.test(emailInput.value);
-    // add error on failed condition
+
+    // add error on invalid condition
     if (!validCondition || emailInput.value == '') {
         emailError.innerText = 'Invalid Entry';
-        emailValid = false;
     }
     else {
         emailError.innerText = '';
-        emailValid = true;
     }
 })
+
+/**
+ * Validates an input using a provided RegExp.
+ * 
+ * @param {object} fieldInput - input field details
+ * @param {object} fieldError - input field error details
+ * @param {string} regex - value matching criteria
+ */
+function validateInput(fieldInput, fieldError, regex) {
+    const errorExists = regex.test(fieldInput.value);
+
+    // add error on failed condition
+    if (errorExists || fieldInput.value == '') {
+        fieldError.innerText = 'Invalid Entry';
+    }
+    else {
+        fieldError.innerText = '';
+    }
+}
 
 // final validation that fields are valid and non-empty
 orderButton.addEventListener('click', ($event) => {
     $event.preventDefault();
-    if ((firstNameInput.value != '' && firstNameValid == true) &&
-        (lastNameInput.value != '' && lastNameValid == true) &&
-        (addressInput.value != '' && addressValid == true) &&
-        (cityInput.value != '' && cityValid == true) &&
-        (emailInput.value != '' && emailValid == true)
-    ) {
 
+    if ((firstNameInput.value != '' && firstNameError.innerText == '') &&
+        (lastNameInput.value != '' && lastNameError.innerText == '') &&
+        (addressInput.value != '' && addressError.innerText == '') &&
+        (cityInput.value != '' && cityError.innerText == '') &&
+        (emailInput.value != '' && emailError.innerText == '')
+    ) {
         // create an array of product IDs
         const productIdarray = [];
         for (let i = 0; i < order.length; i++) {
             productIdarray[i] = order[i].id;
         }
-
         const post = {
             "contact": {
                 "firstName": firstNameInput.value,
@@ -254,7 +231,7 @@ orderButton.addEventListener('click', ($event) => {
             "products": productIdarray
         };
         submitFormData(post);
-        // localStorage.clear();
+        localStorage.clear();
     }
     else {
         alert('There are empty or invalid entries on the page')
@@ -270,9 +247,10 @@ async function submitFormData(post) {
     try {
         const requestPromise = makeRequest(post)
         const response = await requestPromise;
+
         orderId = response.orderId;
         console.log(orderId);
-        window.location.href = "./confirmation.html?id=" + orderId;
+        window.location.href = `./confirmation.html?id=${orderId}`;
     }
     catch (errorResponse) {
         console.log(errorResponse.error);
@@ -288,7 +266,7 @@ async function submitFormData(post) {
 function makeRequest(data) {
     return new Promise((resolve, reject) => {
         let request = new XMLHttpRequest();
-        request.open('POST', api + '/order');
+        request.open('POST', 'http://localhost:3000/api/products/order');
         request.onreadystatechange = () => {
             if (request.readyState === 4) {
                 if (request.status === 201) {
